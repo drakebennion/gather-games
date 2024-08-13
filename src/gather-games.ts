@@ -4,6 +4,8 @@ import { property, customElement } from 'lit/decorators.js';
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth"
 
+import './sign-in.js'
+
 @customElement('gather-games')
 export class GatherGames extends LitElement {
   @property({ type: String }) header = 'My app';
@@ -55,6 +57,6 @@ export class GatherGames extends LitElement {
   override render() {
     return this.user
     ? html`<p>Welcome to the lobby</p>`
-    : html`<p>pls sign in</p>`
+    : html`<sign-in></sign-in>`
   }
 }
