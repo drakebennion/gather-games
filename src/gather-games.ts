@@ -1,7 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
 
-const logo = new URL('../../assets/open-wc-logo.svg', import.meta.url).href;
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth"
 
 @customElement('gather-games')
 export class GatherGames extends LitElement {
@@ -21,61 +22,39 @@ export class GatherGames extends LitElement {
       text-align: center;
       background-color: var(--gather-games-background-color);
     }
-
-    main {
-      flex-grow: 1;
-    }
-
-    .logo {
-      margin-top: 36px;
-      animation: app-logo-spin infinite 20s linear;
-    }
-
-    @keyframes app-logo-spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .app-footer {
-      font-size: calc(12px + 0.5vmin);
-      align-items: center;
-    }
-
-    .app-footer a {
-      margin-left: 5px;
-    }
   `;
 
-  render() {
-    return html`
-      <main>
-        <div class="logo"><img alt="open-wc logo" src=${logo} /></div>
-        <h1>${this.header}</h1>
+  @property({type: Object})
+  user: User | null;
 
-        <p>Edit <code>src/GatherGames.ts</code> and save to reload.</p>
-        <a
-          class="app-link"
-          href="https://open-wc.org/guides/developing-components/code-examples"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Code examples
-        </a>
-      </main>
+  constructor() {
+    super();
 
-      <p class="app-footer">
-        🚽 Made with love by
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="https://github.com/open-wc"
-          >open-wc</a
-        >.
-      </p>
-    `;
+    this.user = null;
+    const firebaseConfig = {
+        apiKey: "AIzaSyDowXJy0RkTR6LYN_rD7VVZ7L0U06PbGHg",
+        authDomain: "gather-drake.firebaseapp.com",
+        projectId: "gather-drake",
+        storageBucket: "gather-drake.appspot.com",
+        messagingSenderId: "757077115765",
+        appId: "1:757077115765:web:3676439c0059173061093c"
+    };
+
+    initializeApp(firebaseConfig);
+
+    // todo: is this the right place to set this handler up?
+    onAuthStateChanged(getAuth(), (user) => {
+        if (user) {
+          // console.log(user)
+        }
+        this.user = user;
+
+    })
+  }
+
+  override render() {
+    return this.user
+    ? html`<p>Welcome to the lobby</p>`
+    : html`<p>pls sign in</p>`
   }
 }
