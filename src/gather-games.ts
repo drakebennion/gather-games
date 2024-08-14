@@ -1,8 +1,11 @@
+/* eslint-disable class-methods-use-this */
 import { LitElement, html, css } from 'lit';
 import { property, customElement } from 'lit/decorators.js';
 
-import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth"
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
+
+import './sign-in.js';
 
 @customElement('gather-games')
 export class GatherGames extends LitElement {
@@ -24,7 +27,7 @@ export class GatherGames extends LitElement {
     }
   `;
 
-  @property({type: Object})
+  @property({ type: Object })
   user: User | null;
 
   constructor() {
@@ -32,29 +35,32 @@ export class GatherGames extends LitElement {
 
     this.user = null;
     const firebaseConfig = {
-        apiKey: "AIzaSyDowXJy0RkTR6LYN_rD7VVZ7L0U06PbGHg",
-        authDomain: "gather-drake.firebaseapp.com",
-        projectId: "gather-drake",
-        storageBucket: "gather-drake.appspot.com",
-        messagingSenderId: "757077115765",
-        appId: "1:757077115765:web:3676439c0059173061093c"
+      apiKey: 'AIzaSyDowXJy0RkTR6LYN_rD7VVZ7L0U06PbGHg',
+      authDomain: 'gather-drake.firebaseapp.com',
+      projectId: 'gather-drake',
+      storageBucket: 'gather-drake.appspot.com',
+      messagingSenderId: '757077115765',
+      appId: '1:757077115765:web:3676439c0059173061093c',
     };
 
     initializeApp(firebaseConfig);
 
     // todo: is this the right place to set this handler up?
-    onAuthStateChanged(getAuth(), (user) => {
-        if (user) {
-          // console.log(user)
-        }
-        this.user = user;
+    onAuthStateChanged(getAuth(), user => {
+      if (user) {
+        // console.log(user)
+      }
+      this.user = user;
+    });
+  }
 
-    })
+  _signOut() {
+    signOut(getAuth());
   }
 
   override render() {
     return this.user
-    ? html`<p>Welcome to the lobby</p>`
-    : html`<p>pls sign in</p>`
+      ? html`<button @click="${this._signOut}">Sign out</button>`
+      : html`<sign-in></sign-in>`;
   }
 }
