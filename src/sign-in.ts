@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import {
+  browserPopupRedirectResolver,
   getAuth,
   GoogleAuthProvider,
   signInAnonymously,
@@ -10,9 +11,11 @@ import { customElement } from 'lit/decorators.js';
 
 @customElement('sign-in')
 export class SignIn extends LitElement {
+  // todo: make this look much less bad
+
   _signInWithGoogle() {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(getAuth(), provider);
+    signInWithPopup(getAuth(), provider, browserPopupRedirectResolver);
   }
 
   _signInAnonymously() {
