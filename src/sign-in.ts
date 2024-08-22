@@ -25,7 +25,6 @@ export class SignIn extends LitElement {
   override render() {
     return html`
       <div>
-        <button @click="${this._signInWithGoogle}">Sign in with Google</button>
         <button @click="${this._signInAnonymously}">
           Sign in anonymously (limited time only!)
         </button>

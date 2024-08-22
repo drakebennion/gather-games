@@ -6,6 +6,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 
 import './sign-in.js';
+import './game-lobby.js';
 
 @customElement('gather-games')
 export class GatherGames extends LitElement {
@@ -60,7 +61,7 @@ export class GatherGames extends LitElement {
 
   override render() {
     return this.user
-      ? html`<button @click="${this._signOut}">Sign out</button>`
+      ? html`<game-lobby></game-lobby>`
       : html`<sign-in></sign-in>`;
   }
 }
