@@ -7,8 +7,8 @@ export class GameCharacter extends LitElement {
   static styles = css`
     :host {
       display: block;
-      height: 8vh;
-      width: 12vh;
+      height: 50px;
+      width: 100px;
       border: 1px solid gray;
       background-color: gray;
       position: relative;
@@ -37,8 +37,8 @@ export class GameCharacter extends LitElement {
       this.left += this.leftIncrement;
       this.top += this.topIncrmement;
 
-      if (this.left >= 493) {
-        this.left = 493;
+      if (this.left >= 500) {
+        this.left = 500;
         this.leftIncrement = -2;
       }
 
@@ -47,8 +47,8 @@ export class GameCharacter extends LitElement {
         this.leftIncrement = 2;
       }
 
-      if (this.top >= 524) {
-        this.top = 524;
+      if (this.top >= 550) {
+        this.top = 550;
         this.topIncrmement = -1;
       }
 
