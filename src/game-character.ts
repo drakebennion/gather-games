@@ -7,8 +7,8 @@ export class GameCharacter extends LitElement {
   static styles = css`
     :host {
       display: block;
-      height: 50px;
-      width: 100px;
+      height: 5vh;
+      width: 10vh;
       border: 1px solid gray;
       background-color: gray;
       position: relative;
@@ -23,43 +23,43 @@ export class GameCharacter extends LitElement {
   top = 0;
 
   @state()
-  leftIncrement = 2;
+  leftIncrement = 0.75;
 
   @state()
-  topIncrmement = 1;
+  topIncrmement = 0.5;
 
   connectedCallback(): void {
     super.connectedCallback?.();
-    this.style.left = `${this.left}px`;
-    this.style.top = `${this.top}px`;
+    this.style.left = `${this.left}vh`;
+    this.style.top = `${this.top}vh`;
 
     setInterval(() => {
       this.left += this.leftIncrement;
       this.top += this.topIncrmement;
 
-      if (this.left >= 500) {
-        this.left = 500;
-        this.leftIncrement = -2;
+      if (this.left >= 65) {
+        this.left = 65;
+        this.leftIncrement = -0.75;
       }
 
       if (this.left <= 0) {
         this.left = 0;
-        this.leftIncrement = 2;
+        this.leftIncrement = 0.75;
       }
 
-      if (this.top >= 550) {
-        this.top = 550;
-        this.topIncrmement = -1;
+      if (this.top >= 70) {
+        this.top = 70;
+        this.topIncrmement = -0.5;
       }
 
       if (this.top <= 0) {
         this.top = 0;
-        this.topIncrmement = 1;
+        this.topIncrmement = 0.5;
       }
 
-      this.style.left = `${this.left}px`;
-      this.style.top = `${this.top}px`;
-    }, 10);
+      this.style.left = `${this.left}vh`;
+      this.style.top = `${this.top}vh`;
+    }, 25);
   }
 
   override render() {
