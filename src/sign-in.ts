@@ -25,9 +25,8 @@ export class SignIn extends LitElement {
   override render() {
     return html`
       <div>
-        <button @click="${this._signInAnonymously}">
-          Sign in anonymously (limited time only!)
-        </button>
+        <!-- todo: add name field, and maybe color picker -->
+        <button @click="${this._signInAnonymously}">Sign in</button>
       </div>
     `;
   }

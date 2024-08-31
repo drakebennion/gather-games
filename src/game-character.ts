@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import { LitElement, css, html } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { LitElement, PropertyValueMap, css, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
 @customElement('game-character')
 export class GameCharacter extends LitElement {
@@ -9,60 +9,31 @@ export class GameCharacter extends LitElement {
       display: block;
       height: 5vh;
       width: 10vh;
-      border: 1px solid gray;
+      border: 2px solid gray;
       background-color: gray;
       position: relative;
     }
   `;
 
-  // todo: could probably just hold one Position object as this property?
-  @state()
-  left = 0;
+  @property({ type: Object })
+  player = { x: 0, y: 0, color: '' };
 
-  @state()
-  top = 0;
+  @property({ type: Boolean })
+  isCurrentPlayer = false;
 
-  @state()
-  leftIncrement = 0.75;
-
-  @state()
-  topIncrmement = 0.5;
-
-  connectedCallback(): void {
-    super.connectedCallback?.();
-    this.style.left = `${this.left}vh`;
-    this.style.top = `${this.top}vh`;
-
-    setInterval(() => {
-      this.left += this.leftIncrement;
-      this.top += this.topIncrmement;
-
-      if (this.left >= 65) {
-        this.left = 65;
-        this.leftIncrement = -0.75;
-      }
-
-      if (this.left <= 0) {
-        this.left = 0;
-        this.leftIncrement = 0.75;
-      }
-
-      if (this.top >= 70) {
-        this.top = 70;
-        this.topIncrmement = -0.5;
-      }
-
-      if (this.top <= 0) {
-        this.top = 0;
-        this.topIncrmement = 0.5;
-      }
-
-      this.style.left = `${this.left}vh`;
-      this.style.top = `${this.top}vh`;
-    }, 25);
+  update(
+    changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>,
+  ): void {
+    super.update(changedProperties);
+    this.style.left = `${this.player?.x}vh`;
+    this.style.top = `${this.player?.y}vh`;
+    this.style.backgroundColor = this.player?.color;
+    this.style.borderColor = this.isCurrentPlayer
+      ? 'black'
+      : this.player?.color;
   }
 
   override render() {
-    return html` <div class="character"></div> `;
+    return html` <div></div> `;
   }
 }

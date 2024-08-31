@@ -1,12 +1,21 @@
 /* eslint-disable class-methods-use-this */
 import { LitElement, html, css } from 'lit';
-import { property, customElement } from 'lit/decorators.js';
+import { property, customElement, state } from 'lit/decorators.js';
 
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 
 import './sign-in.js';
 import './game-lobby.js';
+import {
+  Database,
+  DatabaseReference,
+  getDatabase,
+  onDisconnect,
+  ref,
+  remove,
+  set,
+} from 'firebase/database';
 
 @customElement('gather-games')
 export class GatherGames extends LitElement {
@@ -28,8 +37,14 @@ export class GatherGames extends LitElement {
     }
   `;
 
-  @property({ type: Object })
+  @state()
   user: User | null;
+
+  @state()
+  playerRef?: DatabaseReference;
+
+  @state()
+  database?: Database;
 
   constructor() {
     super();
@@ -42,15 +57,32 @@ export class GatherGames extends LitElement {
       storageBucket: 'gather-drake.appspot.com',
       messagingSenderId: '757077115765',
       appId: '1:757077115765:web:3676439c0059173061093c',
+      databaseUrl: 'https://gather-drake-default-rtdb.firebaseio.com/',
     };
 
-    initializeApp(firebaseConfig);
+    const app = initializeApp(firebaseConfig);
+
+    const database = getDatabase(app);
 
     // todo: is this the right place to set this handler up?
-    onAuthStateChanged(getAuth(), user => {
+    onAuthStateChanged(getAuth(), async user => {
       if (user) {
         // console.log(user)
+        this.playerRef = ref(database, `players/${user.uid}`);
+        const playerColors = ['red', 'blue', 'yellow', 'gray'];
+        set(this.playerRef, {
+          id: user.uid,
+          name: 'Player',
+          // todo: randomize color - then let them choose on sign up:) oh let them type name as well
+          color: playerColors[Math.floor(Math.random() * playerColors.length)],
+        });
+
+        onDisconnect(this.playerRef).remove();
+      } else if (this.playerRef) {
+        remove(this.playerRef);
+        this.playerRef = undefined;
       }
+
       this.user = user;
     });
   }
@@ -60,8 +92,8 @@ export class GatherGames extends LitElement {
   }
 
   override render() {
-    return this.user
-      ? html`<game-lobby></game-lobby>`
+    return this.playerRef
+      ? html`<game-lobby .playerRef="${this.playerRef}"></game-lobby>`
       : html`<sign-in></sign-in>`;
   }
 }
