@@ -22,7 +22,8 @@ export class GameLobby extends LitElement {
       height: 75vh;
       width: 75vh;
       border: 1px solid gray;
-      margin-top: 24px;
+      margin-top: 2vh;
+      position: relative;
     }
   `;
 
@@ -115,13 +116,13 @@ export class GameLobby extends LitElement {
           update(this.playerRef, this.currentPlayer);
         }, 25);
       }
-
-      this.unsubscribeFunctions = [
-        allPlayersUnsubscribe,
-        removedChildUnsubscribe,
-        addedChildUnsubscribe,
-      ];
     });
+
+    this.unsubscribeFunctions = [
+      allPlayersUnsubscribe,
+      removedChildUnsubscribe,
+      addedChildUnsubscribe,
+    ];
   }
 
   override render() {

@@ -11,7 +11,7 @@ export class GameCharacter extends LitElement {
       width: 10vh;
       border: 2px solid gray;
       background-color: gray;
-      position: relative;
+      position: absolute;
     }
   `;
 
