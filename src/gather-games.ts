@@ -67,13 +67,12 @@ export class GatherGames extends LitElement {
     // todo: is this the right place to set this handler up?
     onAuthStateChanged(getAuth(), async user => {
       if (user) {
-        // console.log(user)
         this.playerRef = ref(database, `players/${user.uid}`);
         const playerColors = ['red', 'blue', 'yellow', 'gray'];
         set(this.playerRef, {
           id: user.uid,
+          // todo: add input for name and color picker
           name: 'Player',
-          // todo: randomize color - then let them choose on sign up:) oh let them type name as well
           color: playerColors[Math.floor(Math.random() * playerColors.length)],
         });
 
