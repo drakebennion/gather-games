@@ -91,25 +91,6 @@ export class GameLobby extends LitElement {
 
         update(this.playerRef, this.currentPlayer);
 
-        // oh dear this is gonna be very interesting ;)
-        // todo: collision detectionnnnnn
-        // start the setInterval here that updates the current player's position
-
-        // ok so! heh. bounds of container are easy enough to detect:
-        // but what about checking if colliding with other players?
-
-        // pretend I have a map of everyone's positions
-        // err maybe even just an array of occupied positions?
-        // and maybe only everyone who _is not me :)_
-        /**
-         * todo: allOtherPlayerPositions = [{x: 1, y: 2}, {x: 10, y: 20}, {x: 5, y: 5}]
-         * todo: then given my position, I might be able to detect collision by
-         * todo: checking all the other positions against my x + width, y + height
-         * todo: and if anyone else collides with me, well I suppose I need to know which edge is
-         * todo: colliding, and negate that increment :)
-         *
-         * todo: so everyone will be responsible for their own checking and reversing
-         */
         this.updateInterval = setInterval(() => {
           this.currentPlayer.x += this.currentPlayer.leftIncrement;
           this.currentPlayer.y += this.currentPlayer.topIncrement;
@@ -135,7 +116,8 @@ export class GameLobby extends LitElement {
             this.currentPlayer.topIncrement *= -1;
           }
 
-          this.checkForPlayerCollision();
+          const collidingPlayers = this.findCollidingPlayers();
+          this.handleCollisions(collidingPlayers);
 
           // this seems like it's gonna be wild lol
           update(this.playerRef, this.currentPlayer);
@@ -150,99 +132,77 @@ export class GameLobby extends LitElement {
     ];
   }
 
-  checkForPlayerCollision = () => {
+  findCollidingPlayers = () => {
     const allOtherPlayerPositions = Object.entries(this.allPlayers)
       .filter(([id]) => id !== this.playerRef.key)
-      .map(([, { x, y }]) => ({ x, y }));
+      .map(([id, { x, y }]) => ({ id, x: Number(x), y: Number(y) }));
 
-    // have this.currentPlayer x and y
-    // check for left or right edge collisions and flip leftIncrement as needed
-    // todo: hmmmmmmmmm but won't it also matter what direction i'm currently traveling in?
-    // todo: like if I'm going left already and someone bumps into my right edge, I shouldn't switch left direction right?
-    // oh heavens this might be complicated!
+    const isCollidingWithCurrentPlayer = (otherPlayer: {
+      id: string;
+      x: number;
+      y: number;
+    }) => {
+      const playerWidth = 10;
+      const playerHeight = 5;
 
-    // ok let's just see what we can get :)
-    // because yeah that might be easy neough to check? if someone is hitting my left edge && I was travelling left, now travel right
-    // i htink :)
+      if (this.currentPlayer.x + playerWidth <= otherPlayer.x) {
+        return false;
+      }
 
-    // ok fair enoguh. now how to detect someone hitting my left edge?
-    // that'd be if we're in the same y vicinity (their y is between my y and y + height)
-    // and in the same x vicinity (their x is between my x and...x - width? because they're to my left? :)
+      if (otherPlayer.x + playerWidth <= this.currentPlayer.x) {
+        return false;
+      }
 
-    // todo: may find a more suitable home for these
-    const width = 10;
-    const height = 5;
-    // todo: also may want to fudge the collision detection by like maybe 0.5? to account for lag?
+      if (this.currentPlayer.y + playerHeight <= otherPlayer.y) {
+        return false;
+      }
 
-    // oi veyyyyy I probably should check what _quadrant_ of the rectangle they're hitting lol
+      if (otherPlayer.y + playerHeight <= this.currentPlayer.y) {
+        return false;
+      }
 
-    // err idk. say I'm travelling left
-    // eh let's try it :) find someone who fits that bill and if there is anyone, flip left direction _if i'm travling left
-    const someoneCollidingOnLeft =
-      /* this.currentPlayer.leftIncrement < 0 && */ allOtherPlayerPositions.find(
-        ({ x, y }) =>
-          this.currentPlayer.x - width <= x &&
-          x <= this.currentPlayer.x &&
-          this.currentPlayer.y <= y &&
-          y <= this.currentPlayer.y + height,
-      );
+      return true;
+    };
 
-    // someone is on my right edge
-    // so they're in my y vicinity (same logic as left)
-    // but their x is between my x and x + width? :)
-    const someoneCollidingOnRight =
-      /* this.currentPlayer.leftIncrement > 0 && */ allOtherPlayerPositions.find(
-        ({ x, y }) =>
-          this.currentPlayer.x <= x &&
-          x <= this.currentPlayer.x + width &&
-          this.currentPlayer.y <= y &&
-          y <= this.currentPlayer.y + height,
-      );
+    return allOtherPlayerPositions.filter(isCollidingWithCurrentPlayer);
+  };
 
-    // if (someoneCollidingOnLeft || someoneCollidingOnRight) {
-    //   this.currentPlayer.leftIncrement *= -1
-    // }
+  handleCollisions = (
+    collidingPlayers: Array<{ id: string; x: number; y: number }>,
+  ) => {
+    // todo: order by distance
 
-    // haaaa omg that's crunchy af but it sorta works :))))))
+    // todo: global const
+    const playerWidth = 10;
+    const playerHeight = 5;
 
-    // let's doo top edge!
-    // same x vicinity: their x is between my x and x + width
-    // same y vicinity: their y is between my y - height and y?
-    const someoneCollidingOnTop =
-      /* this.currentPlayer.topIncrement < 0 && */ allOtherPlayerPositions.find(
-        ({ x, y }) =>
-          this.currentPlayer.x <= x &&
-          x <= this.currentPlayer.x + width &&
-          this.currentPlayer.y - height <= y &&
-          y <= this.currentPlayer.y,
-      );
+    collidingPlayers.forEach(otherPlayer => {
+      const { x: currentX, y: currentY } = this.currentPlayer;
+      const { x: otherX, y: otherY } = otherPlayer;
 
-    // bottom edge: same x logic, but their y is between my y and y + height
-    // same y vicinity: their y is between my y - height and y?
-    const someoneCollidingOnBottom =
-      /* this.currentPlayer.topIncrement > 0 && */ allOtherPlayerPositions.find(
-        ({ x, y }) =>
-          this.currentPlayer.x <= x &&
-          x <= this.currentPlayer.x + width &&
-          this.currentPlayer.y <= y &&
-          y <= this.currentPlayer.y + height,
-      );
+      const collidingOnTop =
+        currentY - playerHeight <= otherY && otherY <= currentY;
+      const collidingOnBottom =
+        currentY <= otherY && otherY <= currentY + playerHeight;
+      const collidingOnLeft =
+        currentX - playerWidth <= otherX && otherX <= currentX;
+      const collidingOnRight =
+        currentX <= otherX && otherX <= currentX + playerWidth;
 
-    if (someoneCollidingOnTop || someoneCollidingOnBottom) {
-      this.currentPlayer.topIncrement *= -1;
-    }
-    if (someoneCollidingOnLeft || someoneCollidingOnRight) {
-      this.currentPlayer.leftIncrement *= -1;
-    }
-
-    // if (someoneCollidingOnTop || someoneCollidingOnBottom || someoneCollidingOnLeft || someoneCollidingOnRight) {
-    //   console.log('top collision: ', someoneCollidingOnTop)
-    //   console.log('Bottom collision: ', someoneCollidingOnBottom)
-    //   console.log('Left collision: ', someoneCollidingOnLeft)
-    //   console.log('Right collision: ', someoneCollidingOnRight)
-    //   this.currentPlayer.leftIncrement = 0;
-    //   this.currentPlayer.topIncrement = 0;
-    // }
+      if (collidingOnTop) {
+        this.currentPlayer.topIncrement *= -1;
+        this.currentPlayer.y = otherY + playerHeight;
+      } else if (collidingOnBottom) {
+        this.currentPlayer.topIncrement *= -1;
+        this.currentPlayer.y = otherY - playerHeight;
+      } else if (collidingOnLeft) {
+        this.currentPlayer.leftIncrement *= -1;
+        this.currentPlayer.x = otherX + playerWidth;
+      } else if (collidingOnRight) {
+        this.currentPlayer.leftIncrement *= -1;
+        this.currentPlayer.x = otherX - playerWidth;
+      }
+    });
   };
 
   override render() {
