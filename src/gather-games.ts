@@ -91,8 +91,11 @@ export class GatherGames extends LitElement {
   }
 
   override render() {
-    return this.playerRef
-      ? html`<game-lobby .playerRef="${this.playerRef}"></game-lobby>`
-      : html`<sign-in></sign-in>`;
+    return html`<div>
+      <span>v0.1</span>
+      ${this.playerRef
+        ? html`<game-lobby .playerRef="${this.playerRef}"></game-lobby>`
+        : html`<sign-in></sign-in>`}
+    </div>`;
   }
 }
